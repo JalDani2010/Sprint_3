@@ -5,8 +5,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const donationRoutes = require("./routes/donationRoutes");
 const billingRoutes = require("./routes/billingRoutes");
-const paymentRoutes = require("./routes/paymentRoutes"); // New payment route
-const mongoose = require("mongoose");
+const paymentRoutes = require("./routes/paymentRoutes"); 
 const connectDB = require("./db/connection");
 require("dotenv").config();
 
@@ -23,7 +22,7 @@ app.use(morgan("dev"));
 // Routes
 app.use("/api/donations", donationRoutes);
 app.use("/api/billing", billingRoutes);
-app.use("/api/payment", paymentRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // Start server
 const PORT = process.env.PORT || 3000;

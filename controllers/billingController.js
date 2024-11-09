@@ -5,12 +5,13 @@ const Transaction = require("../models/Transaction");
 
 exports.generateBill = async (req, res) => {
   try {
-    const { amount, ngoId } = req.body;
-
-    // Create and store a new transaction record
+    const { amount, ngoId, ngoName } = req.body;
+    
+    // Create and store a new transaction record with ngoName
     const transaction = await Transaction.create({
       amount,
       ngoId,
+      ngoName,
       status: "Completed",
       transactionDate: new Date(),
     });

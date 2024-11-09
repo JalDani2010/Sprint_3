@@ -10,6 +10,10 @@ const transactionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  ngoName: {
+    type: String,
+    required: true,
+  },
   status: {
     type: String,
     enum: ["Completed", "Failed"],

@@ -1,46 +1,51 @@
-// controllers/donationController.js
-const paymentService = require("../services/payment"); 
-const receiptGenerator = require("../services/receiptGenerator"); 
-const Donation = require("../models/Donation"); 
-
+const paymentService = require("../services/payment"); // Use the mock payment service
+const receiptGenerator = require("../services/receiptGenerator");
+const Donation = require("../models/Donation");
 
 exports.processDonation = async (req, res) => {
   try {
-    const { amount, donorId, paymentMethod } = req.body;
+    // Destructure required fields from request body
+    const { amount, donorId, name, mobileNumber, ngoName } = req.body;
 
-   
-    const paymentResult = await paymentService.processPayment(amount, paymentMethod);
+    // Ensure all required fields are present
+    if (
+      !amount ||
+      !donorId ||
+      !name ||
+      !mobileNumber ||
+      !ngoName
+    ) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
 
-    if (!paymentResult.success) {
+    // Generate a mock transaction token based on user-provided details
+    const paymentResult = await paymentService.createMockTransaction({
+      name,
+      mobileNumber,
+      ngoName,
+      amount,
+    });
+
+    if (!paymentResult.transactionToken) {
       return res.status(400).json({ error: "Payment processing failed." });
     }
 
-    
+    // Save donation details, including transaction token, to the database
     const donation = await Donation.create({
       amount,
       donorId,
-      transactionId: "202201315",
+      transactionId: paymentResult.transactionToken,
       status: "Completed",
     });
 
-    
+    // Generate a receipt for the donation
     const receipt = await receiptGenerator.generateReceipt(donation);
 
-    res.status(201).json({ message: "Donation processed successfully", receipt });
+    res
+      .status(201)
+      .json({ message: "Donation processed successfully", receipt });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-
-exports.getDonationRecords = async (req, res) => {
-  try {
-    const { donorId } = req.params;
-    const donations = await Donation.find({ donorId });
-    res.status(200).json(donations);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Could not retrieve donation records" });
   }
 };
